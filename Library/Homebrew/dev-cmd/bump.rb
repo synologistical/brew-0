@@ -45,8 +45,6 @@ module Homebrew
                description: "Limit number of package results returned."
         flag   "--start-with=",
                description: "Letter or word that the list of package results should alphabetically follow."
-        switch "-f", "--force",
-               hidden:      true
 
         conflicts "--cask", "--formula"
         conflicts "--tap=", "--installed"
@@ -63,8 +61,6 @@ module Homebrew
           raise UsageError, "`--limit` must be used with either `--formula` or `--cask`."
         end
 
-        odisabled "brew bump --force" if args.force?
-
         Homebrew.with_no_api_env do
           formulae_and_casks = if args.tap
             tap = Tap.fetch(T.must(args.tap))
@@ -78,13 +74,7 @@ module Homebrew
             casks = args.formula? ? [] : Cask::Caskroom.casks
             formulae + casks
           elsif args.named.present?
-            if args.formula?
-              args.named.to_formulae
-            elsif args.cask?
-              args.named.to_casks
-            else
-              args.named.to_formulae_and_casks
-            end
+            args.named.to_formulae_and_casks_with_taps
           end
 
           formulae_and_casks = formulae_and_casks&.sort_by do |formula_or_cask|
@@ -109,10 +99,14 @@ module Homebrew
 
       private
 
-      sig { params(formula_or_cask: T.any(Formula, Cask::Cask)).returns(T::Boolean) }
-      def skip_repology?(formula_or_cask)
-        (ENV["CI"].present? && args.open_pr? && formula_or_cask.livecheckable?) ||
-          (formula_or_cask.is_a?(Formula) && formula_or_cask.versioned_formula?)
+      sig { params(_formula_or_cask: T.any(Formula, Cask::Cask)).returns(T::Boolean) }
+      def skip_repology?(_formula_or_cask)
+        # (ENV["CI"].present? && args.open_pr? && formula_or_cask.livecheckable?) ||
+        #   (formula_or_cask.is_a?(Formula) && formula_or_cask.versioned_formula?)
+
+        # Unconditionally skip Repology queries for now because we've been blocked.
+        # TODO: get unblocked and make this conditional on e.g. args.repology?
+        true
       end
 
       sig { params(formulae_and_casks: T::Array[T.any(Formula, Cask::Cask)]).void }
@@ -229,15 +223,15 @@ module Homebrew
         if formula_or_cask.is_a?(Formula)
           skip = formula_or_cask.disabled? || formula_or_cask.head_only?
           name = formula_or_cask.name
-          text = "Formula is #{formula_or_cask.disabled? ? "disabled" : "HEAD-only"}.\n"
+          text = "Formula is #{formula_or_cask.disabled? ? "disabled" : "HEAD-only"} so not accepting updates.\n"
         else
           skip = formula_or_cask.disabled?
           name = formula_or_cask.token
-          text = "Cask is disabled.\n"
+          text = "Cask is disabled so not accepting updates.\n"
         end
         if (tap = formula_or_cask.tap) && !tap.allow_bump?(name)
           skip = true
-          text = "#{text.split.first} is on autobump list.\n"
+          text = "#{text.split.first} is autobumped so will have bump PRs opened by BrewTestBot every ~3 hours.\n"
         end
         return false unless skip
 
