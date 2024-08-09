@@ -258,18 +258,13 @@ module Homebrew
               require_sha:    args.require_sha?,
               skip_cask_deps: args.skip_cask_deps?,
               verbose:        args.verbose?,
+              quiet:          args.quiet?,
               args:,
             )
           end
         end
 
-        if Homebrew::Attestation.enabled?
-          if formulae.include?(Formula["gh"])
-            formulae.unshift(T.must(formulae.delete(Formula["gh"])))
-          else
-            Homebrew::Attestation.gh_executable
-          end
-        end
+        formulae = Homebrew::Attestation.sort_formulae_for_install(formulae) if Homebrew::Attestation.enabled?
 
         # if the user's flags will prevent bottle only-installations when no
         # developer tools are available, we need to stop them early on

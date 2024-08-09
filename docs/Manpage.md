@@ -2775,6 +2775,10 @@ Check for typechecking errors using Sorbet.
 
 : Try upgrading `typed` sigils.
 
+`--lsp`
+
+: Start the Sorbet LSP server.
+
 `--dir`
 
 : Typecheck all files in a specific directory.
@@ -3062,6 +3066,9 @@ a local machine).
 This workflow is useful for maintainers or testers who regularly install lots of
 formulae.
 
+Unless `--force` is passed, this returns a 1 exit code if anything would be
+removed.
+
 `brew bundle check`
 
 : Check if all dependencies present in the `Brewfile` are installed.
@@ -3173,9 +3180,9 @@ the output is not to a tty, print the appropriate handler script for your shell.
 Manage background services with macOS' `launchctl`(1) daemon manager or Linux's
 `systemctl`(1) service manager.
 
-If `sudo` is passed, operate on
-`/Library/LaunchDaemons`/`/usr/lib/systemd/system` (started at boot). Otherwise,
-operate on `~/Library/LaunchAgents`/`~/.config/systemd/user` (started at login).
+If `sudo` is passed, operate on `/Library/LaunchDaemons` or
+`/usr/lib/systemd/system` (started at boot). Otherwise, operate on
+`~/Library/LaunchAgents` or `~/.config/systemd/user` (started at login).
 
 \[`sudo`\] `brew services` \[`list`\] (`--json`) (`--debug`)
 
@@ -3691,6 +3698,11 @@ command execution e.g. `$(cat file)`.
 : If set, tweak behaviour to be more relevant for Homebrew developers (active or
   budding) by e.g. turning warnings into errors.
 
+`HOMEBREW_DISABLE_DEBREW`
+
+: If set, the interactive formula debugger available via `--debug` will be
+  disabled.
+
 `HOMEBREW_DISABLE_LOAD_FORMULA`
 
 : If set, refuse to load formulae. This is useful when formulae are not trusted
@@ -3770,6 +3782,11 @@ command execution e.g. `$(cat file)`.
 
 : A space-separated list of taps. Homebrew will refuse to install a formula if
   it or any of its dependencies is in a tap on this list.
+
+`HOMEBREW_FORBID_PACKAGES_FROM_PATHS`
+
+: If set, Homebrew will refuse to read formulae or casks provided from file
+  paths, e.g. `brew install ./package.rb`.
 
 `HOMEBREW_FORCE_BREWED_CA_CERTIFICATES`
 
@@ -3861,6 +3878,11 @@ command execution e.g. `$(cat file)`.
   *Default:* `$XDG_CONFIG_HOME/homebrew/livecheck_watchlist.txt` if
   `$XDG_CONFIG_HOME` is set or `$HOME/.homebrew/livecheck_watchlist.txt`
   otherwise.
+
+`HOMEBREW_LOCK_CONTEXT`
+
+: If set, Homebrew will add this output as additional context for locking
+  errors. This is useful when running `brew` in the background.
 
 `HOMEBREW_LOGS`
 
@@ -4119,8 +4141,8 @@ Homebrew's maintainers are Alexander Bayandin, Bevan Kay, Bo Anderson, Branch
 Vincent, Caleb Xu, Carlo Cabrera, Douglas Eichelberger, Dustin Rodrigues, Eric
 Knibbe, FX Coudert, Issy Long, Justin Krehel, Klaus Hipp, Markus Reiter, Miccal
 Matthews, Michael Cho, Michka Popoff, Mike McQuaid, Nanda H Krishna, Patrick
-Linnane, Razvan Azamfirei, Rui Chen, Ruoyu Zhong, Rylan Polster, Sam Ford, Sean
-Molenaar, Thierry Moisan, Timothy Sutton, William Woodruff and Štefan Baebler.
+Linnane, Rui Chen, Ruoyu Zhong, Rylan Polster, Sam Ford, Sean Molenaar, Thierry
+Moisan, Timothy Sutton, William Woodruff and Štefan Baebler.
 
 Former maintainers with significant contributions include Misty De Méo, Shaun
 Jackman, Vítor Galvão, Claudia Pellegrino, Seeker, Jan Viljanen, JCount,

@@ -134,13 +134,7 @@ module Homebrew
         only_upgrade_formulae = formulae.present? && casks.blank?
         only_upgrade_casks = casks.present? && formulae.blank?
 
-        if Homebrew::Attestation.enabled?
-          if formulae.include?(Formula["gh"])
-            formulae.unshift(formulae.delete(Formula["gh"]))
-          else
-            Homebrew::Attestation.gh_executable
-          end
-        end
+        formulae = Homebrew::Attestation.sort_formulae_for_install(formulae) if Homebrew::Attestation.enabled?
 
         upgrade_outdated_formulae(formulae) unless only_upgrade_casks
         upgrade_outdated_casks(casks) unless only_upgrade_formulae
@@ -183,7 +177,7 @@ module Homebrew
             if latest_keg.nil?
               ofail "#{f.full_specified_name} not installed"
             else
-              opoo "#{f.full_specified_name} #{latest_keg.version} already installed"
+              opoo "#{f.full_specified_name} #{latest_keg.version} already installed" unless args.quiet?
             end
           end
         end
@@ -277,6 +271,7 @@ module Homebrew
           require_sha:         args.require_sha?,
           skip_cask_deps:      args.skip_cask_deps?,
           verbose:             args.verbose?,
+          quiet:               args.quiet?,
           args:,
         )
       end

@@ -386,7 +386,7 @@ EOS
 ${HOMEBREW_CELLAR} is not writable. You should change the
 ownership and permissions of ${HOMEBREW_CELLAR} back to your
 user account:
-  sudo chown -R \$(whoami) ${HOMEBREW_CELLAR}
+  sudo chown -R ${USER-\$(whoami)} ${HOMEBREW_CELLAR}
 EOS
   fi
 
@@ -488,6 +488,7 @@ EOS
 
   if [[ -z "${HOMEBREW_VERBOSE}" ]]
   then
+    export GIT_ADVICE="false"
     QUIET_ARGS=(-q)
   else
     QUIET_ARGS=()

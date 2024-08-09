@@ -1240,8 +1240,6 @@ on_request: installed_on_request?, options:)
   def fetch
     return if previously_fetched_formula
 
-    SBOM.fetch_schema! if Homebrew::EnvConfig.developer?
-
     fetch_dependencies
 
     return if only_deps?
@@ -1310,7 +1308,7 @@ on_request: installed_on_request?, options:)
 
             gh auth login
         EOS
-      rescue Homebrew::Attestation::InvalidAttestationError => e
+      rescue Homebrew::Attestation::MissingAttestationError, Homebrew::Attestation::InvalidAttestationError => e
         raise CannotInstallFormulaError, <<~EOS
           The bottle for #{formula.name} has an invalid build provenance attestation.
 
